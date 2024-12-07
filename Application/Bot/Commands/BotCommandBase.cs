@@ -1,0 +1,72 @@
+﻿using DocumentFormat.OpenXml.InkML;
+using Microsoft.EntityFrameworkCore;
+using RentalHelper.Domain;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
+
+namespace Application.Bot.Commands;
+
+public abstract class BotCommandBase
+{
+    protected AppDbContext _appDbContext;
+    public abstract bool CanHandle(string command, uState state);
+    public abstract Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null);
+
+    public async Task SendIdleMenu(ITelegramBotClient botClient, Message message, AppDbContext context)
+    {
+        await botClient.SendMessage(
+                    chatId: message.Chat.Id,
+                    text: $"Выберите действие",
+                    replyMarkup: await GetKeyboardForUserAsync(context, message)
+                );
+    }
+    public async Task<IReplyMarkup> GetKeyboardForUserAsync(AppDbContext context, Message message)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+        if (user == null)
+            return new InlineKeyboardMarkup(new[]
+                {
+                    new[] { InlineKeyboardButton.WithCallbackData("старт", "/start") }
+                });
+        else
+            switch (user.Role)
+            {
+                case Role.Арендатор:
+                    return new InlineKeyboardMarkup(new[]
+                {
+                    new[] { InlineKeyboardButton.WithCallbackData("Отправить заявку", "create_request") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Выдать пропуск транспорту", "add_vehicle") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Отозвать пропуск транспорту", "delete_vehicle") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Забронировать переговорку", "book_meeting_room") }
+                });
+
+                case Role.Сотрудник:
+                    return user.UserState == uState.Idle
+                        ? new InlineKeyboardMarkup(new[]
+                            {
+                                new[] { InlineKeyboardButton.WithCallbackData("Список новых заявок", "/start") },
+                                new[] { InlineKeyboardButton.WithCallbackData("Взять заявку в работу", "/start") }
+                            }) :
+                            new InlineKeyboardMarkup(new[]
+                            {
+                                new[] { InlineKeyboardButton.WithCallbackData("Завершить работу над заявкой", "/start") }
+                            });
+
+                case Role.Админ:
+                    return new InlineKeyboardMarkup(new[]
+                {
+                    new[] { InlineKeyboardButton.WithCallbackData("Список пользователей", "/start") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "/start") }
+                });
+
+                default:
+                    return new InlineKeyboardMarkup(new[]
+                {
+                    new[] { InlineKeyboardButton.WithCallbackData("Выбрать роль", "/start") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "/start") }
+                });
+            }
+        return null;
+    }
+}
