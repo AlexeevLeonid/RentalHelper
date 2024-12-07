@@ -2,7 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using RentalHelper.Domain;
-namespace Application.Bot.Commands;
+namespace Application.Bot.Commands.Tenant;
 
 public class CreateRequestCommand : BotCommandBase
 {
@@ -18,7 +18,7 @@ public class CreateRequestCommand : BotCommandBase
     public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
     {
         if (message == null) message = query.Message;
-        
+
         var chatId = message.Chat.Id;
 
         // Проверяем, выбрал ли пользователь роль
@@ -37,13 +37,12 @@ public class CreateRequestCommand : BotCommandBase
                 Description = message.Text ?? throw new ArgumentException("Пустое сообщение"),
                 Status = Status.Новая,
                 CreatedById = chatId,
-                CreatedBy = user,
                 CreatedAt = DateTime.UtcNow,
             });
             user.UserState = uState.Idle;
             await context.SaveChangesAsync();
             await botClient.SendMessage(
-                chatId: chatId, 
+                chatId: chatId,
                 text: $"Заявка отправлена: {message.Text}");
             await SendIdleMenu(botClient, message, context);
             foreach (var worker in context.Users.Where(x => x.Role == Role.Сотрудник && x.Requests.Any(x => x.Status == Status.Выполняется)))

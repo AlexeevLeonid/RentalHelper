@@ -3,7 +3,7 @@ using RentalHelper.Domain;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 
-namespace Application.Bot.Commands;
+namespace Application.Bot.Commands.Infrastructure;
 
 public class CommandDispatcher
 {
@@ -34,9 +34,9 @@ public class CommandDispatcher
                     return;
                 }
             }
+            await botClient.SendTextMessageAsync(id, "Команда не распознана.");
         }
 
-        // Если команда не распознана
-        await botClient.SendTextMessageAsync(message.Chat.Id, "Команда не распознана.");
+        
     }
 }

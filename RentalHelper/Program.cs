@@ -1,4 +1,5 @@
 using Application.Bot;
+using Microsoft.Extensions.Hosting;
 using System;
 using Telegram.Bot;
 
@@ -35,6 +36,12 @@ app.UseAuthorization();
 app.MapControllers();
 
 var bot = app.Services.GetRequiredService<HelpDescBot>();
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var context = services.GetRequiredService<AppDbContext>();
+    AppDbContext.Seed(context); // Засеивание данных
+}
 bot.Start();
 
 app.Run();

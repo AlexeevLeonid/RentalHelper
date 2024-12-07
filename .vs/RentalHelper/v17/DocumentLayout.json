@@ -3,32 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\bookmeetingroomcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\bookmeetingroomcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\worker\\donerequestcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\worker\\donerequestcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\infrastructure\\commanddispatcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\infrastructure\\commanddispatcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\helpdescbot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\helpdescbot.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\commanddispatcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\commanddispatcher.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\infrastructure\\botcommandbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\infrastructure\\botcommandbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{675B2B75-DA47-4F97-BD7F-7FB73526E673}|Domain\\Domain.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\domain\\domain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{675B2B75-DA47-4F97-BD7F-7FB73526E673}|Domain\\Domain.csproj|solutionrelative:domain\\domain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\roleselectioncommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\roleselectioncommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\vehicleaccesscommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\vehicleaccesscommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\worker\\takerequestinworkcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\worker\\takerequestinworkcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\tenant\\bookmeetingroomcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\tenant\\bookmeetingroomcommand.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{996B0206-4782-4AEC-82BE-BEDEC1C623FE}|RentalHelper\\RentalHelper.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\rentalhelper\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{996B0206-4782-4AEC-82BE-BEDEC1C623FE}|RentalHelper\\RentalHelper.csproj|solutionrelative:rentalhelper\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{C8606588-F424-4CD3-A2B5-E79E8BC0A478}|Infrastructure\\Infrastructure.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\infrastructure\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{C8606588-F424-4CD3-A2B5-E79E8BC0A478}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\context.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\application\\bot\\commands\\botcommandbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{FFB717B6-839E-4E69-A22A-E770B048E767}|Application\\Application.csproj|solutionrelative:application\\bot\\commands\\botcommandbase.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{675B2B75-DA47-4F97-BD7F-7FB73526E673}|Domain\\Domain.csproj|c:\\users\\leoni\\source\\repos\\rentalhelper\\domain\\domain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{675B2B75-DA47-4F97-BD7F-7FB73526E673}|Domain\\Domain.csproj|solutionrelative:domain\\domain.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,95 +50,134 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Document",
               "DocumentIndex": 4,
-              "Title": "VehicleAccessCommand.cs",
-              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\VehicleAccessCommand.cs",
-              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\VehicleAccessCommand.cs",
-              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\VehicleAccessCommand.cs",
-              "RelativeToolTip": "Application\\Bot\\Commands\\VehicleAccessCommand.cs",
-              "ViewState": "AQIAAA8AAAAAAAAAAAAmwFQAAAANAAAA",
+              "Title": "RoleSelectionCommand.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\RoleSelectionCommand.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\RoleSelectionCommand.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\RoleSelectionCommand.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\RoleSelectionCommand.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABQAAAAEAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-07T17:45:49.947Z",
+              "WhenOpened": "2024-12-07T19:53:53.959Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "BotCommandBase.cs",
-              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\BotCommandBase.cs",
-              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\BotCommandBase.cs",
-              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\BotCommandBase.cs",
-              "RelativeToolTip": "Application\\Bot\\Commands\\BotCommandBase.cs",
-              "ViewState": "AQIAACAAAAAAAAAAAAAkwCgAAABxAAAA",
+              "DocumentIndex": 5,
+              "Title": "TakeRequestInWorkCommand.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Worker\\TakeRequestInWorkCommand.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\Worker\\TakeRequestInWorkCommand.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Worker\\TakeRequestInWorkCommand.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\Worker\\TakeRequestInWorkCommand.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAABkAAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-07T15:50:04.489Z",
+              "WhenOpened": "2024-12-07T18:59:35.921Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "HelpDescBot.cs",
               "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\HelpDescBot.cs",
               "RelativeDocumentMoniker": "Application\\Bot\\HelpDescBot.cs",
               "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\HelpDescBot.cs",
               "RelativeToolTip": "Application\\Bot\\HelpDescBot.cs",
-              "ViewState": "AQIAACgAAAAAAAAAAAAuwDcAAAAMAAAA",
+              "ViewState": "AQIAAAoAAAAAAAAAAAAiwBoAAAAvAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-05T16:19:53.561Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "CommandDispatcher.cs",
-              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\CommandDispatcher.cs",
-              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\CommandDispatcher.cs",
-              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\CommandDispatcher.cs",
-              "RelativeToolTip": "Application\\Bot\\Commands\\CommandDispatcher.cs",
-              "ViewState": "AQIAABgAAAAAAAAAAAAYwCcAAAAIAAAA",
+              "DocumentIndex": 0,
+              "Title": "DoneRequestCommand.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Worker\\DoneRequestCommand.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\Worker\\DoneRequestCommand.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Worker\\DoneRequestCommand.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\Worker\\DoneRequestCommand.cs",
+              "ViewState": "AQIAAAYAAAAAAAAAAADwvxoAAAAIAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-12-07T17:26:00.571Z",
+              "WhenOpened": "2024-12-07T19:29:26.844Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
+              "Title": "BotCommandBase.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Infrastructure\\BotCommandBase.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\Infrastructure\\BotCommandBase.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Infrastructure\\BotCommandBase.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\Infrastructure\\BotCommandBase.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAAgwC8AAAB0AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-07T19:31:16.787Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CommandDispatcher.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Infrastructure\\CommandDispatcher.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\Infrastructure\\CommandDispatcher.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Infrastructure\\CommandDispatcher.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\Infrastructure\\CommandDispatcher.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABYAAAAIAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-07T19:57:58.988Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
               "Title": "BookMeetingRoomCommand.cs",
-              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\BookMeetingRoomCommand.cs",
-              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\BookMeetingRoomCommand.cs",
-              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\BookMeetingRoomCommand.cs",
-              "RelativeToolTip": "Application\\Bot\\Commands\\BookMeetingRoomCommand.cs",
-              "ViewState": "AQIAADcAAAAAAAAAAAAiwEQAAAAMAAAA",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Tenant\\BookMeetingRoomCommand.cs",
+              "RelativeDocumentMoniker": "Application\\Bot\\Commands\\Tenant\\BookMeetingRoomCommand.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Application\\Bot\\Commands\\Tenant\\BookMeetingRoomCommand.cs",
+              "RelativeToolTip": "Application\\Bot\\Commands\\Tenant\\BookMeetingRoomCommand.cs",
+              "ViewState": "AQIAAAIAAAAAAAAAAADwv0QAAAAMAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-07T17:59:00.201Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 7,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\RentalHelper\\Program.cs",
+              "RelativeDocumentMoniker": "RentalHelper\\Program.cs",
+              "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\RentalHelper\\Program.cs",
+              "RelativeToolTip": "RentalHelper\\Program.cs",
+              "ViewState": "AQIAABAAAAAAAAAAAAAAACkAAAAxAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-12-07T19:56:52.053Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Domain.cs",
               "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Domain\\Domain.cs",
               "RelativeDocumentMoniker": "Domain\\Domain.cs",
               "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Domain\\Domain.cs",
               "RelativeToolTip": "Domain\\Domain.cs",
-              "ViewState": "AQIAAEEAAAAAAAAAAAAUwA0AAAArAAAA",
+              "ViewState": "AQIAABEAAAAAAAAAAAAUwBoAAAAaAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-07T18:01:06.456Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "Context.cs",
               "DocumentMoniker": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Infrastructure\\Context.cs",
               "RelativeDocumentMoniker": "Infrastructure\\Context.cs",
               "ToolTip": "C:\\Users\\leoni\\source\\repos\\RentalHelper\\Infrastructure\\Context.cs",
               "RelativeToolTip": "Infrastructure\\Context.cs",
-              "ViewState": "AQIAABEAAAAAAAAAAAAswCoAAAAlAAAA",
+              "ViewState": "AQIAAC0AAAAAAAAAAAAuwEsAAABxAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-12-07T17:20:13.859Z",
               "EditorCaption": ""

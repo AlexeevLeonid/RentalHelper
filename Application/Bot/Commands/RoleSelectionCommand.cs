@@ -14,7 +14,7 @@ public class RoleSelectionCommand : BotCommandBase
 
     public override bool CanHandle(string message, uState s)
     {
-        return message == "/start" || message == "Арендатор" || message == "Технический специалист" || message == "Суперюзер";
+        return message == "/start" || message == "Арендатор" || message == "Сотрудник" || message == "Админ";
     }
 
     public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)

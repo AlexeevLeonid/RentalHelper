@@ -11,7 +11,7 @@ using Telegram.Bot;
 using DocumentFormat.OpenXml.InkML;
 using System.Globalization;
 
-namespace Application.Bot.Commands
+namespace Application.Bot.Commands.Tenant
 {
     public class BookMeetingRoomCommand : BotCommandBase
     {

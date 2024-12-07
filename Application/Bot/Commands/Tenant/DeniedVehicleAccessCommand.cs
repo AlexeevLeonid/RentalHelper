@@ -9,7 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
 
-namespace Application.Bot.Commands
+namespace Application.Bot.Commands.Tenant
 {
     public class DeniedVehicleAccessCommand : BotCommandBase
     {

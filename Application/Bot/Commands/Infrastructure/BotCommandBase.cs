@@ -42,15 +42,10 @@ public abstract class BotCommandBase
                 });
 
                 case Role.Сотрудник:
-                    return user.UserState == uState.Idle
-                        ? new InlineKeyboardMarkup(new[]
+                    return new InlineKeyboardMarkup(new[]
                             {
-                                new[] { InlineKeyboardButton.WithCallbackData("Список новых заявок", "/start") },
-                                new[] { InlineKeyboardButton.WithCallbackData("Взять заявку в работу", "/start") }
-                            }) :
-                            new InlineKeyboardMarkup(new[]
-                            {
-                                new[] { InlineKeyboardButton.WithCallbackData("Завершить работу над заявкой", "/start") }
+                                new[] { InlineKeyboardButton.WithCallbackData("Взять заявку в работу", "take_request") },
+                                new[] { InlineKeyboardButton.WithCallbackData("Закрыть взятые заявки", "done_request") },
                             });
 
                 case Role.Админ:

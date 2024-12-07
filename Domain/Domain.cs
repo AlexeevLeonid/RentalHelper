@@ -25,8 +25,8 @@ namespace RentalHelper.Domain
         TenantGivingAccess,
         TenantDeniyngAccess,
         TenantBookingRoom,
-        WorkerShooseRequest,
-        WorkerInWork,
+        WorkerTakeRequest,
+        WorkerDoneRequest,
         Admin,
     }
     public enum Role

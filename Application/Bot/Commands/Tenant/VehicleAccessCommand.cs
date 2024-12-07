@@ -9,7 +9,7 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using Microsoft.EntityFrameworkCore;
 
-namespace Application.Bot.Commands
+namespace Application.Bot.Commands.Tenant
 {
 
     public class VehicleAccessCommand : BotCommandBase
@@ -74,7 +74,7 @@ namespace Application.Bot.Commands
                     user.UserState = uState.Idle;
                     await context.Vehicles.AddAsync(newVehicles[chatId]);
                     await context.SaveChangesAsync();
-                    
+
                     await botClient.SendMessage(
                     chatId: message.Chat.Id,
                     text: $"Заявка успешно создана, номер {newVehicles[chatId].PlateNumber}"

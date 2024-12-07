@@ -9,6 +9,9 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using RentalHelper.Domain;
+using Application.Bot.Commands.Infrastructure;
+using Application.Bot.Commands.Tenant;
+using Application.Bot.Commands.Worker;
 namespace Application.Bot;
 
 public class HelpDescBot
@@ -28,6 +31,8 @@ public class HelpDescBot
             new VehicleAccessCommand(),
             new DeniedVehicleAccessCommand(),
             new BookMeetingRoomCommand(),
+            new TakeRequestInWorkCommand(),
+            new DoneRequestCommand()
         };
 
         _dispatcher = new CommandDispatcher(commands, provider);
