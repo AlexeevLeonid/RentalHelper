@@ -1,4 +1,5 @@
-﻿using RentalHelper.Domain;
+﻿using Microsoft.EntityFrameworkCore;
+using RentalHelper.Domain;
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -12,7 +13,7 @@ public class RoleSelectionCommand : BotCommandBase
     {
     }
 
-    public override bool CanHandle(string message, uState s)
+    public override bool CanHandle(string message, uState s, Role r)
     {
         return message == "/start" || message == "Арендатор" || message == "Сотрудник" || message == "Админ";
     }
@@ -20,7 +21,9 @@ public class RoleSelectionCommand : BotCommandBase
     public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
     {
         if (message == null) message = query.Message;
-        if (!context.Users.Any(x => x.TelegramId == message.Chat.Id))
+        if (!context.Tenants.Any(x => x.TelegramId == message.Chat.Id) || 
+            !context.Workers.Any(x => x.TelegramId == message.Chat.Id) || 
+            !context.Admins.Any(x => x.TelegramId == message.Chat.Id))
         {
             var text = message.Text;
             if (text == "/start")
@@ -40,18 +43,41 @@ public class RoleSelectionCommand : BotCommandBase
             }
             else
             {
-
-                context.Users.Add(new RentalHelper.Domain.User
+                var role = (Role)Enum.Parse(typeof(Role), text, true);
+                if (role == Role.Арендатор)
                 {
-                    TelegramId = message.Chat.Id,
-                    Name = message.Chat.Username ?? "",
-                    UserState = uState.Idle,
-                    Role = (Role)Enum.Parse(typeof(Role), text, true),
-                });
+                    context.Tenants.Add(new RentalHelper.Domain.Tenant
+                    {
+                        TelegramId = message.Chat.Id,
+                        Name = message.Chat.Username ?? "",
+                        UserState = uState.Idle,
+                        Role = role,
+                    });
+                } else if (role == Role.Сотрудник)
+                {
+                    context.Workers.Add(new RentalHelper.Domain.Worker
+                    {
+                        TelegramId = message.Chat.Id,
+                        Name = message.Chat.Username ?? "",
+                        UserState = uState.Idle,
+                        Role = role,
+                    });
+                }
+                else if (role == Role.Админ)
+                {
+                    context.Admins.Add(new RentalHelper.Domain.Admin
+                    {
+                        TelegramId = message.Chat.Id,
+                        Name = message.Chat.Username ?? "",
+                        UserState = uState.Idle,
+                        Role = role,
+                    });
+                }
+
                 await context.SaveChangesAsync();
                 await botClient.SendMessage(
                     chatId: message.Chat.Id,
-                    text: $"Ваша роль: {context.Users.First(x => x.TelegramId == message.Chat.Id).Role}"
+                    text: $"Ваша роль: {role}"
                 );
                 await SendIdleMenu(botClient, message, context);
             }
@@ -59,9 +85,14 @@ public class RoleSelectionCommand : BotCommandBase
         else
         {
             // Если роль уже выбрана, сообщаем об этом
+            var user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+            if (user == null)
+                await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+            if (user == null)
+                await context.Admins.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
             await botClient.SendMessage(
                 chatId: message.Chat.Id,
-                text: $"Ваша роль: {context.Users.First(x => x.TelegramId == message.Chat.Id).Role}"
+                text: $"Ваша роль: {user.Role}"
             );
             await SendIdleMenu(botClient, message, context);
         }

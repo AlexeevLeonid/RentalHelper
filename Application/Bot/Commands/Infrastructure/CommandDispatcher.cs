@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using RentalHelper.Domain;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -24,11 +25,17 @@ public class CommandDispatcher
             var id = message != null ? message.Chat.Id : query.From.Id;
             var text = message != null ? message.Text : query.Data;
             var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            var user = context.Users.FirstOrDefault(x => x.TelegramId == id);
+            RentalHelper.Domain.User user;
+            user = context.Admins.FirstOrDefault(x => x.TelegramId == id);
+            if (user == null)
+                user = await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == id);
+            if (user == null)
+                user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == id);
             var state = user != null ? user.UserState : uState.NewUser;
+            var role = user != null ? user.Role : Role.НовыйПользователь;
             foreach (var command in _commands)
             {
-                if (command.CanHandle(text, state))
+                if (command.CanHandle(text, state, role))
                 {
                     await command.ExecuteAsync(botClient, context, message, query);
                     return;

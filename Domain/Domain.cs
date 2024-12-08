@@ -10,12 +10,21 @@ namespace RentalHelper.Domain
         public long TelegramId { get; set; } = 0;
         public string Name { get; set; } = string.Empty;
         public ICollection<Request> Requests { get; set; } = new List<Request>();
-        public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
-        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+        
         public Role Role { get; set; }
 
         public uState UserState { get; set; }
     }
+
+    public class Tenant : User
+    {
+        public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
+        public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+    }
+    public class Worker : User
+    { }
+    public class Admin : User
+    { }
     public enum uState
     {
         NewUser,
@@ -27,10 +36,12 @@ namespace RentalHelper.Domain
         TenantBookingRoom,
         WorkerTakeRequest,
         WorkerDoneRequest,
-        Admin,
+        AdminRequestInfo,
+        AdminSetPrice,
     }
     public enum Role
     {
+        НовыйПользователь,
         Арендатор,
         Сотрудник,
         Админ
@@ -43,9 +54,9 @@ namespace RentalHelper.Domain
         public string Description { get; set; } = string.Empty;
         public Status Status { get; set; }
         public long CreatedById { get; set; }
-        public User CreatedBy { get; set; } = null!;
+        public Tenant CreatedBy { get; set; } = null!;
         public long? AssignedToId { get; set; }
-        public User? AssignedTo { get; set; }
+        public Worker? AssignedTo { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 
@@ -62,8 +73,9 @@ namespace RentalHelper.Domain
     {
         public int Id { get; set; }
         public string PlateNumber { get; set; }
-        public User User { get; set; }
+        public Tenant User { get; set; }
 
+        public int? Price { get; set; }
         public long UserId { get; set; }
         public bool IsPaid { get; set; }
         public bool IsOneTime { get; set; }
@@ -73,7 +85,7 @@ namespace RentalHelper.Domain
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public User User { get; set; }
+        public Tenant User { get; set; }
         public long UserId { get; set; }
     }
 }

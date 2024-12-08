@@ -12,6 +12,7 @@ using RentalHelper.Domain;
 using Application.Bot.Commands.Infrastructure;
 using Application.Bot.Commands.Tenant;
 using Application.Bot.Commands.Worker;
+using Application.Bot.Commands.Admin;
 namespace Application.Bot;
 
 public class HelpDescBot
@@ -29,10 +30,11 @@ public class HelpDescBot
             new RoleSelectionCommand(),
             new CreateRequestCommand(),
             new VehicleAccessCommand(),
-            new DeniedVehicleAccessCommand(),
+            new RevokeVehicleAccessCommand(),
             new BookMeetingRoomCommand(),
             new TakeRequestInWorkCommand(),
-            new DoneRequestCommand()
+            new DoneRequestCommand(),
+            new GetInfoListCommand()
         };
 
         _dispatcher = new CommandDispatcher(commands, provider);

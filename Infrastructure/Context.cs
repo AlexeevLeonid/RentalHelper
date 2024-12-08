@@ -7,7 +7,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<Tenant> Tenants { get; set; }
+    public DbSet<Worker> Workers { get; set; }
+    public DbSet<Admin> Admins { get; set; }
     public DbSet<Request> Requests { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
     public DbSet<Booking> Bookings { get; set; }
@@ -16,14 +18,18 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<Tenant>()
             .HasKey(x => x.TelegramId);
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<Worker>()
+            .HasKey(x => x.TelegramId);
+        modelBuilder.Entity<Admin>()
+            .HasKey(x => x.TelegramId);
+        modelBuilder.Entity<Tenant>()
             .HasMany<Request>(u => u.Requests)
             .WithOne(r => r.CreatedBy)
             .HasForeignKey(r => r.CreatedById);
 
-        modelBuilder.Entity<User>()
+        modelBuilder.Entity<Tenant>()
             .HasMany(u => u.Vehicles)
             .WithOne(r => r.User)
             .HasForeignKey(r => r.UserId);
@@ -34,22 +40,34 @@ public class AppDbContext : DbContext
             .HasForeignKey(r => r.UserId);
 
         modelBuilder.Entity<Request>()
-            .HasOne<User>(r => r.AssignedTo)
+            .HasOne(r => r.AssignedTo)
             .WithMany()
             .HasForeignKey(r => r.AssignedToId);
 
         modelBuilder.Entity<Booking>()
-            .HasOne<User>(r => r.User)
+            .HasOne(r => r.User)
             .WithMany(u => u.Bookings)
             .HasForeignKey(r => r.UserId);
     }
 
     public static void Seed(AppDbContext context)
     {
-        if (!context.Users.Any())
+        if (!context.Workers.Any())
         {
-            context.Users.AddRange(
-                new User { Name = "@centerhades", TelegramId = 663509662, Role = Role.Сотрудник, UserState = uState.Idle }
+            context.Workers.AddRange(
+                new Worker { Name = "@centerhades", TelegramId = 663509662, Role = Role.Сотрудник, UserState = uState.Idle }
+            );
+        }
+        if (!context.Tenants.Any())
+        {
+            context.Tenants.AddRange(
+                new Tenant { Name = "@centerhades", TelegramId = 663509662, Role = Role.Арендатор, UserState = uState.Idle }
+            );
+        }
+        if (!context.Admins.Any())
+        {
+            context.Admins.AddRange(
+                new Admin { Name = "@centerhades", TelegramId = 663509662, Role = Role.Админ, UserState = uState.Idle }
             );
         }
         // Проверяем, есть ли данные в базе, чтобы не засевать их заново
@@ -73,7 +91,7 @@ public class AppDbContext : DbContext
         {
             context.Requests.AddRange(
                 new Request { Description = "Петрович врубай насос", CreatedById = 663509662, Status = Status.Новая },
-                new Request { Description = "резать чуррос", CreatedById = 663509662, Status = Status.Выполняется }
+                new Request { Description = "резать чуррос", CreatedById = 663509662, AssignedToId = 663509662, Status = Status.Выполняется }
             );
         }
 

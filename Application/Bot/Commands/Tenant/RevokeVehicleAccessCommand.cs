@@ -11,21 +11,21 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Application.Bot.Commands.Tenant
 {
-    public class DeniedVehicleAccessCommand : BotCommandBase
+    public class RevokeVehicleAccessCommand : BotCommandBase
     {
-        public DeniedVehicleAccessCommand()
+        public RevokeVehicleAccessCommand()
         {
         }
 
-        public override bool CanHandle(string command, uState s)
+        public override bool CanHandle(string command, uState s, Role role)
         {
-            return command == "delete_vehicle" || s == uState.TenantDeniyngAccess;
+            return role == Role.Арендатор && (command == "delete_vehicle" || s == uState.TenantDeniyngAccess);
         } // Перехватывает любое сообщение для контекста
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var user = await context.Users.FirstAsync(x => x.TelegramId == message.Chat.Id);
+            var user = await context.Tenants.FirstAsync(x => x.TelegramId == message.Chat.Id);
             var chatId = message.Chat.Id;
             if (user.UserState == uState.Idle)
             {

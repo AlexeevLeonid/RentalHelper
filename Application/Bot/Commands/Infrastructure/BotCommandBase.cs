@@ -10,7 +10,7 @@ namespace Application.Bot.Commands;
 public abstract class BotCommandBase
 {
     protected AppDbContext _appDbContext;
-    public abstract bool CanHandle(string command, uState state);
+    public abstract bool CanHandle(string command, uState state, Role role);
     public abstract Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null);
 
     public async Task SendIdleMenu(ITelegramBotClient botClient, Message message, AppDbContext context)
@@ -23,7 +23,12 @@ public abstract class BotCommandBase
     }
     public async Task<IReplyMarkup> GetKeyboardForUserAsync(AppDbContext context, Message message)
     {
-        var user = await context.Users.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+        RentalHelper.Domain.User user;
+        user = await context.Admins.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+        if (user == null)
+            await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+        if (user == null)
+            user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
         if (user == null)
             return new InlineKeyboardMarkup(new[]
                 {
@@ -51,7 +56,7 @@ public abstract class BotCommandBase
                 case Role.Админ:
                     return new InlineKeyboardMarkup(new[]
                 {
-                    new[] { InlineKeyboardButton.WithCallbackData("Список пользователей", "/start") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Сводка по текущему состоянию", "admin_info") },
                     new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "/start") }
                 });
 

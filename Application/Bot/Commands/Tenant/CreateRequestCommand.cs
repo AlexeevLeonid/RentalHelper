@@ -10,10 +10,10 @@ public class CreateRequestCommand : BotCommandBase
     {
     }
 
-    public override bool CanHandle(string command, uState s)
+    public override bool CanHandle(string command, uState s, Role role)
     {
-        return command == "create_request" || s == uState.TenantCreatingRequest;
-    } // Перехватывает любое сообщение для контекста
+        return role == Role.Арендатор && (command == "create_request" || s == uState.TenantCreatingRequest);
+    }
 
     public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
     {
@@ -22,12 +22,12 @@ public class CreateRequestCommand : BotCommandBase
         var chatId = message.Chat.Id;
 
         // Проверяем, выбрал ли пользователь роль
-        if (!context.Users.Any(x => x.TelegramId == message.Chat.Id))
+        if (!context.Tenants.Any(x => x.TelegramId == message.Chat.Id))
         {
             await botClient.SendMessage(chatId, "Пожалуйста, сначала выберите вашу роль с помощью команды /start.");
             return;
         }
-        var user = await context.Users.FirstOrDefaultAsync(x => x.TelegramId == chatId) ??
+        var user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == chatId) ??
                     throw new ArgumentException("Пользователь отсутствует в системе");
         // Если пользователь отправляет текст после выбора роли
         if (user.UserState == uState.TenantCreatingRequest)
@@ -45,7 +45,7 @@ public class CreateRequestCommand : BotCommandBase
                 chatId: chatId,
                 text: $"Заявка отправлена: {message.Text}");
             await SendIdleMenu(botClient, message, context);
-            foreach (var worker in context.Users.Where(x => x.Role == Role.Сотрудник && x.Requests.Any(x => x.Status == Status.Выполняется)))
+            foreach (var worker in context.Workers.Where(x => x.Role == Role.Сотрудник && x.Requests.Any(x => x.Status == Status.Выполняется)))
             {
                 await botClient.SendMessage(worker.TelegramId, $"Появилась новая заявка: {message.Text}");
             }

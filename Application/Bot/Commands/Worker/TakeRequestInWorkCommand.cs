@@ -17,15 +17,15 @@ namespace Application.Bot.Commands.Worker
         {
         }
 
-        public override bool CanHandle(string command, uState s)
+        public override bool CanHandle(string command, uState s, Role role)
         {
-            return command == "take_request" || s == uState.WorkerTakeRequest;
+            return role == Role.Сотрудник && (command == "take_request" || s == uState.WorkerTakeRequest);
         } // Перехватывает любое сообщение для контекста
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var user = await context.Users.FirstAsync(x => x.TelegramId == message.Chat.Id);
+            var user = await context.Workers.FirstAsync(x => x.TelegramId == message.Chat.Id);
             var chatId = message.Chat.Id;
             if (user.UserState == uState.Idle)
             {
