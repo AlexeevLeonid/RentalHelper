@@ -39,7 +39,7 @@ namespace Application.Bot.Commands.Admin
                 admin.UserState = uState.AdminRequestInfo;
                 await context.SaveChangesAsync();
             }
-            else if (query != null && query.Data != null || message != null)
+            else if (query != null && query.Data != null)
             {
                 if (query.Data.StartsWith("revoke_request"))
                     await RevokeRequestHandle(botClient, context, message, query, admin);
@@ -49,6 +49,10 @@ namespace Application.Bot.Commands.Admin
                     await SetPriceHandle(botClient, context, message, query, admin);
                 if (query.Data.StartsWith("revoke_access"))
                     await RevokeAccessHandle(botClient, context, message, query, admin);
+            } else if (message != null)
+            {
+                if (admin.UserState == uState.AdminSetPrice)
+                    await SetPriceHandle(botClient, context, message, query, admin);
             }
         }
 

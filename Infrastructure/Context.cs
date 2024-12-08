@@ -52,46 +52,47 @@ public class AppDbContext : DbContext
 
     public static void Seed(AppDbContext context)
     {
+        long id = 12;//663509662
         if (!context.Workers.Any())
         {
             context.Workers.AddRange(
-                new Worker { Name = "@centerhades", TelegramId = 663509662, Role = Role.Сотрудник, UserState = uState.Idle }
+                new Worker { Name = "@centerhades", TelegramId = id, Role = Role.Сотрудник, UserState = uState.Idle }
             );
         }
         if (!context.Tenants.Any())
         {
             context.Tenants.AddRange(
-                new Tenant { Name = "@centerhades", TelegramId = 663509662, Role = Role.Арендатор, UserState = uState.Idle }
+                new Tenant { Name = "@centerhades", TelegramId = id, Role = Role.Арендатор, UserState = uState.Idle }
             );
         }
         if (!context.Admins.Any())
         {
             context.Admins.AddRange(
-                new Admin { Name = "@centerhades", TelegramId = 663509662, Role = Role.Админ, UserState = uState.Idle }
+                new Admin { Name = "@centerhades", TelegramId = id, Role = Role.Админ, UserState = uState.Idle }
             );
         }
         // Проверяем, есть ли данные в базе, чтобы не засевать их заново
         if (!context.Vehicles.Any())
         {
             context.Vehicles.AddRange(
-                new Vehicle { PlateNumber = "ABC123", IsPaid = true, IsOneTime = false, UserId = 663509662 },
-                new Vehicle { PlateNumber = "XYZ456", IsPaid = false, IsOneTime = true, UserId = 663509662 }
+                new Vehicle { PlateNumber = "ABC123", IsPaid = true, IsOneTime = false, UserId = id },
+                new Vehicle { PlateNumber = "XYZ456", IsPaid = false, IsOneTime = true, UserId = id }
             );
         }
 
         if (!context.Bookings.Any())
         {
             context.Bookings.AddRange(
-                new Booking { Date = DateTime.Now.AddDays(1), UserId = 663509662 },
-                new Booking { Date = DateTime.Now.AddDays(2), UserId = 663509662 }
+                new Booking { Date = DateTime.Now.AddDays(1), UserId = id },
+                new Booking { Date = DateTime.Now.AddDays(2), UserId = id }
             );
         }
 
         if (!context.Requests.Any())
         {
             context.Requests.AddRange(
-                new Request { Description = "Петрович врубай насос", CreatedById = 663509662, Status = Status.Новая },
-                new Request { Description = "резать чуррос", CreatedById = 663509662, AssignedToId = 663509662, Status = Status.Выполняется }
+                new Request { Description = "Петрович врубай насос", CreatedById = id, Status = Status.Новая },
+                new Request { Description = "резать чуррос", CreatedById = id, AssignedToId = id, Status = Status.Выполняется }
             );
         }
 
