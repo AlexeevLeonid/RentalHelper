@@ -8,7 +8,9 @@ using Microsoft.Extensions.DependencyInjection;
 public class AppDbContext : DbContext
 {
     public DbSet<Tenant> Tenants { get; set; }
+    public DbSet<Room> Rooms { get; set; }
     public DbSet<Worker> Workers { get; set; }
+    public DbSet<NewUser> NewUsers { get; set; }
     public DbSet<Admin> Admins { get; set; }
     public DbSet<Request> Requests { get; set; }
     public DbSet<Vehicle> Vehicles { get; set; }
@@ -24,6 +26,9 @@ public class AppDbContext : DbContext
             .HasKey(x => x.TelegramId);
         modelBuilder.Entity<Admin>()
             .HasKey(x => x.TelegramId);
+        modelBuilder.Entity<NewUser>()
+            .HasKey(x => x.TelegramId);
+
         modelBuilder.Entity<Tenant>()
             .HasMany<Request>(u => u.Requests)
             .WithOne(r => r.CreatedBy)
@@ -33,6 +38,11 @@ public class AppDbContext : DbContext
             .HasMany(u => u.Vehicles)
             .WithOne(r => r.User)
             .HasForeignKey(r => r.UserId);
+
+        modelBuilder.Entity<Tenant>()
+            .HasMany(u => u.Rooms)
+            .WithOne(r => r.Tenant)
+            .HasForeignKey(r => r.TenantId);
 
         modelBuilder.Entity<Vehicle>()
             .HasOne(u => u.User)
@@ -44,6 +54,11 @@ public class AppDbContext : DbContext
             .WithMany()
             .HasForeignKey(r => r.AssignedToId);
 
+        modelBuilder.Entity<Room>().
+            HasMany(x => x.Requests).
+            WithOne(x => x.Room).
+            HasForeignKey(r => r.RoomId);
+
         modelBuilder.Entity<Booking>()
             .HasOne(r => r.User)
             .WithMany(u => u.Bookings)
@@ -52,7 +67,7 @@ public class AppDbContext : DbContext
 
     public static void Seed(AppDbContext context)
     {
-        long id = 12;//663509662
+        long id = 663509662;
         if (!context.Workers.Any())
         {
             context.Workers.AddRange(

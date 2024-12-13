@@ -9,15 +9,21 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using DocumentFormat.OpenXml.Office2010.Excel;
+using Application.Services;
 
-namespace Application.Bot.Commands.Admin
+namespace Application.Bot.Commands.AdminCommands
 {
 
     public class GetInfoListCommand : BotCommandBase
     {
-        private static Dictionary<long, int> vehicles = new Dictionary<long, int>();
-        public GetInfoListCommand()
+        private readonly RequestService requestService;
+        private readonly VehicleService vehicleService;
+
+        public GetInfoListCommand(UserService userService, RequestService requestService, VehicleService vehicleService) 
+            : base(userService)
         {
+            this.requestService = requestService;
+            this.vehicleService = vehicleService;
         }
 
         public override bool CanHandle(string message, uState s, Role role)
@@ -25,34 +31,36 @@ namespace Application.Bot.Commands.Admin
             return role == Role.Админ && (message == "admin_info" || s == uState.AdminRequestInfo || s == uState.AdminSetPrice);
         }
 
-        public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+        public override async Task ExecuteAsync(ITelegramBotClient botClient,Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var chatId = message.Chat.Id;
-            var admin = await context.Admins.FirstAsync(x => x.TelegramId == message.Chat.Id);
+            var userId = message.Chat.Id;
+            var admin = await userService.GetAdminByIdAsync(userId);
             if (admin.UserState == uState.Idle)
             {
-                var tenants = context.Tenants.Include(x => x.Requests).Include(x => x.Vehicles).Include(x => x.Bookings).ToList();
+                var tenants = await userService.GetTenantsAsync();
                 await TenantRequests(botClient, message, tenants);
-                var workers = context.Workers.Include(x => x.Requests).ToList();
+                var workers = await userService.GetWorkersAsync();
                 await WorkerRequests(botClient, message, workers);
-                admin.UserState = uState.AdminRequestInfo;
-                await context.SaveChangesAsync();
+                await userService.SetUserState(admin, uState.Idle);
             }
             else if (query != null && query.Data != null)
             {
                 if (query.Data.StartsWith("revoke_request"))
-                    await RevokeRequestHandle(botClient, context, message, query, admin);
+                    await RevokeRequestHandle(botClient, message, query, admin);
                 if (query.Data.StartsWith("done_request"))
-                    await DoneHandle(botClient, context, message, query, admin);
+                    await DoneHandle(botClient, message, query, admin);
                 if (query.Data.StartsWith("set_price") || admin.UserState == uState.AdminSetPrice)
-                    await SetPriceHandle(botClient, context, message, query, admin);
+                    await SetPriceHandle(botClient, message, query, admin);
                 if (query.Data.StartsWith("revoke_access"))
-                    await RevokeAccessHandle(botClient, context, message, query, admin);
-            } else if (message != null)
+                    await RevokeAccessHandle(botClient,  message, query, admin);
+                await SendIdleMenu(botClient, userId);
+
+            }
+            else if (message != null)
             {
                 if (admin.UserState == uState.AdminSetPrice)
-                    await SetPriceHandle(botClient, context, message, query, admin);
+                    await SetPriceHandle(botClient, message, query, admin);
             }
         }
 
@@ -80,7 +88,7 @@ namespace Application.Bot.Commands.Admin
             }
         }
 
-        private static async Task TenantRequests(ITelegramBotClient botClient, Message message, List<RentalHelper.Domain.Tenant> users)
+        private static async Task TenantRequests(ITelegramBotClient botClient, Message message, List<Tenant> users)
         {
             foreach (var user in users.Where(x => x.Role == Role.Арендатор))
             {
@@ -123,14 +131,11 @@ namespace Application.Bot.Commands.Admin
             }
         }
 
-        private static async Task DoneHandle(ITelegramBotClient botClient, AppDbContext context, Message message, CallbackQuery query, RentalHelper.Domain.Admin admin)
+        private async Task DoneHandle(ITelegramBotClient botClient, Message message, CallbackQuery query, Admin admin)
         {
             var id = int.Parse(query.Data.Split(":")[1]);
-
-            var request = context.Requests.Include(x => x.AssignedTo).First(x => x.Id == id);
-            request.Status = Status.Готово;
-            admin.UserState = uState.Idle;
-            await context.SaveChangesAsync();
+            var request = await requestService.DoneRequestByIdAsync(id);
+            await userService.SetUserState(admin, uState.Idle);
             await botClient.SendMessage(
                     chatId: message.Chat.Id,
                     text: $"Завяка: {request.Description} \n отмечена выполненной");
@@ -145,18 +150,13 @@ namespace Application.Bot.Commands.Admin
             return;
         }
 
-        private static async Task RevokeRequestHandle(ITelegramBotClient botClient, AppDbContext context, Message message, CallbackQuery query, RentalHelper.Domain.Admin admin)
+        private async Task RevokeRequestHandle(ITelegramBotClient botClient, Message message, CallbackQuery query, Admin admin)
         {
             var id = int.Parse(query.Data.Split(":")[1]);
-
-            var request = context.Requests.First(x => x.Id == id);
-            var workerId = request.AssignedToId.Value;
-            request.AssignedToId = null;
-            request.Status = Status.Новая;
-            admin.UserState = uState.Idle;
-            await context.SaveChangesAsync();
+            var request = await requestService.RevokeRequestByIdAsync(id);
+            await userService.SetUserState(admin, uState.Idle);
             await botClient.SendMessage(
-                    chatId: workerId,
+                    chatId: request.AssignedToId ?? throw new Exception("Отозхвали заявку без работника"),
                     text: $"Завяка: {request.Description} \n отозвана у вас менеджером {admin.Name}");
             await botClient.SendMessage(
                     chatId: message.Chat.Id,
@@ -164,34 +164,29 @@ namespace Application.Bot.Commands.Admin
             return;
         }
 
-        private static async Task RevokeAccessHandle(ITelegramBotClient botClient, AppDbContext context, Message message, CallbackQuery query, RentalHelper.Domain.Admin admin)
+        private async Task RevokeAccessHandle(ITelegramBotClient botClient, Message message, CallbackQuery query, Admin admin)
         {
             var id = int.Parse(query.Data.Split(":")[1]);
-
-            var vehicle = context.Vehicles.First(x => x.Id == id);
-            var userId = vehicle.UserId;
-            var plateumber = vehicle.PlateNumber;
-            context.Vehicles.Remove(vehicle);
-            await context.SaveChangesAsync();
+            var (userId, plateNumber) = await vehicleService.RevokeVehicleAccessByIdAsync(id);
+            await userService.SetUserState(admin, uState.Idle);
             await botClient.SendMessage(
                     chatId: userId,
-                    text: $"Доступ машине под номером {plateumber} отозван менеджером {admin.Name}");
+                    text: $"Доступ машине под номером {plateNumber} отозван менеджером {admin.Name}");
             await botClient.SendMessage(
                     chatId: message.Chat.Id,
-                    text: $"Доступ машине под номером {plateumber} отозван");
+                    text: $"Доступ машине под номером {plateNumber} отозван");
             return;
         }
 
-        private static async Task SetPriceHandle(ITelegramBotClient botClient, AppDbContext context, Message message, CallbackQuery query, RentalHelper.Domain.Admin admin)
+        private async Task SetPriceHandle(ITelegramBotClient botClient, Message message, CallbackQuery query, Admin admin)
         {
             
             if (admin.UserState == uState.AdminRequestInfo)
             {
                 var id = int.Parse(query.Data.Split(":")[1]);
-                var vehicle = context.Vehicles.First(x => x.Id == id);
-                admin.UserState = uState.AdminSetPrice;
-                vehicles[admin.TelegramId] = id;
-                await context.SaveChangesAsync();
+                var vehicle = await vehicleService.GetVehicleByIdAsync(id);
+                vehicleService.PrepareVehicle(admin.TelegramId, id);
+                await userService.SetUserState(admin, uState.AdminSetPrice);
                 await botClient.SendMessage(
                         chatId: message.Chat.Id,
                         text: $"Установите цену для машины {vehicle.PlateNumber}");
@@ -199,17 +194,18 @@ namespace Application.Bot.Commands.Admin
             }
             else
             {
-                var vehicle = context.Vehicles.First(x => x.Id == vehicles[admin.TelegramId]);
-                vehicles.Remove(admin.TelegramId);
-                vehicle.Price = int.Parse(message.Text);
-                admin.UserState = uState.Idle;
-                await context.SaveChangesAsync();
+                var price = int.Parse(message.Text);
+                var (pn, ui) = await vehicleService.SetVehiclePrice(admin.TelegramId, price);
+                await userService.SetUserState(admin, uState.Idle);
                 await botClient.SendMessage(
                         chatId: message.Chat.Id,
-                        text: $"Для машины {vehicle.PlateNumber} установлена цена: {message.Text}");
+                        text: $"Для машины {pn} установлена цена: {message.Text}");
                 await botClient.SendMessage(
-                        chatId: vehicle.UserId,
-                        text: $"Для машины {vehicle.PlateNumber} установлена цена: {message.Text}");
+                        chatId: ui,
+                        text: $"Для машины {pn} установлена цена: {message.Text}");
+
+                await SendIdleMenu(botClient, message.Chat.Id);
+
             }
         }
     }

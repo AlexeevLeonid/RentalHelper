@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml.InkML;
+﻿using Application.Services;
+using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.Office2010.Excel;
 using Microsoft.EntityFrameworkCore;
 using RentalHelper.Domain;
 using Telegram.Bot;
@@ -9,26 +11,26 @@ namespace Application.Bot.Commands;
 
 public abstract class BotCommandBase
 {
-    protected AppDbContext _appDbContext;
+    protected readonly UserService userService;
+    protected IServiceProvider _serviceProvider;
+    protected BotCommandBase(UserService userService)
+    {
+        this.userService = userService;
+    }
     public abstract bool CanHandle(string command, uState state, Role role);
-    public abstract Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null);
+    public abstract Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null);
 
-    public async Task SendIdleMenu(ITelegramBotClient botClient, Message message, AppDbContext context)
+    public async Task SendIdleMenu(ITelegramBotClient botClient, long id)
     {
         await botClient.SendMessage(
-                    chatId: message.Chat.Id,
+                    chatId: id,
                     text: $"Выберите действие",
-                    replyMarkup: await GetKeyboardForUserAsync(context, message)
+                    replyMarkup: await GetKeyboardForUserAsync(id)
                 );
     }
-    public async Task<IReplyMarkup> GetKeyboardForUserAsync(AppDbContext context, Message message)
+    public async Task<IReplyMarkup> GetKeyboardForUserAsync(long id)
     {
-        RentalHelper.Domain.User user;
-        user = await context.Admins.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
-        if (user == null)
-            await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
-        if (user == null)
-            user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
+        var user = await userService.GetUserByIdAsync(id);
         if (user == null)
             return new InlineKeyboardMarkup(new[]
                 {
@@ -57,16 +59,16 @@ public abstract class BotCommandBase
                     return new InlineKeyboardMarkup(new[]
                 {
                     new[] { InlineKeyboardButton.WithCallbackData("Сводка по текущему состоянию", "admin_info") },
-                    new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "/start") }
+                    new[] { InlineKeyboardButton.WithCallbackData("Присвоить роль новым пользователям", "assign_role") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Управление комнатами", "assign_room") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "vehicle_excel") }
                 });
 
                 default:
                     return new InlineKeyboardMarkup(new[]
                 {
-                    new[] { InlineKeyboardButton.WithCallbackData("Выбрать роль", "/start") },
-                    new[] { InlineKeyboardButton.WithCallbackData("Список допущенных машин", "/start") }
+                    new[] { InlineKeyboardButton.WithCallbackData("Выбрать роль", "/start") }
                 });
             }
-        return null;
     }
 }

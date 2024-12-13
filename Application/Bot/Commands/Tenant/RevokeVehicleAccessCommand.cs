@@ -8,13 +8,16 @@ using System.Threading.Tasks;
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using Telegram.Bot.Types.ReplyMarkups;
+using Application.Services;
 
-namespace Application.Bot.Commands.Tenant
+namespace Application.Bot.Commands.TenantCommands
 {
     public class RevokeVehicleAccessCommand : BotCommandBase
     {
-        public RevokeVehicleAccessCommand()
+        private readonly VehicleService vehicleService;
+        public RevokeVehicleAccessCommand(UserService userService, VehicleService vehicleService) : base(userService)
         {
+            this.vehicleService = vehicleService;
         }
 
         public override bool CanHandle(string command, uState s, Role role)
@@ -22,43 +25,41 @@ namespace Application.Bot.Commands.Tenant
             return role == Role.Арендатор && (command == "delete_vehicle" || s == uState.TenantDeniyngAccess);
         } // Перехватывает любое сообщение для контекста
 
-        public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+        public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var user = await context.Tenants.FirstAsync(x => x.TelegramId == message.Chat.Id);
-            var chatId = message.Chat.Id;
-            if (user.UserState == uState.Idle)
+            var userId = message.Chat.Id;
+            var Tenant = await userService.GetTenantByIdAsync(userId);
+            
+            if (Tenant.UserState == uState.Idle)
             {
-                foreach (var v in context.Vehicles.Where(x => x.UserId == chatId))
+                foreach (var v in await vehicleService.GetUserVehiclesByIdAsync(userId))
                 {
                     await botClient.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: $"{v.PlateNumber}",
+                    chatId: userId,
+                    text: $"Машина с номером: {v.PlateNumber}\n\n" + (v.Price.HasValue ? $"Цена: {v.Price}" : "Цена ещё не выставлена"),
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
-                                new[] { InlineKeyboardButton.WithCallbackData("удалить", "vehicle_denied_access") },
+                                new[] { InlineKeyboardButton.WithCallbackData("удалить", $"vehicle_denied_access:{v.Id}") },
                             })
                     );
                 }
-                user.UserState = uState.TenantDeniyngAccess;
-                await context.SaveChangesAsync();
+                await userService.SetUserState(Tenant, uState.TenantDeniyngAccess);
                 return;
             }
-            if (user.UserState == uState.TenantDeniyngAccess)
+            if (Tenant.UserState == uState.TenantDeniyngAccess)
             {
-                var v = await context.Vehicles.FirstAsync(x => x.PlateNumber == message.Text);
-                context.Remove(v);
-                user.UserState = uState.Idle;
-                await context.SaveChangesAsync();
+                var id = int.Parse(query.Data.Split(":")[1]);
+                var a = await vehicleService.RevokeVehicleAccessByIdAsync(id);
+                await userService.SetUserState(Tenant, uState.Idle);
                 await botClient.SendMessage(
-                   chatId: message.Chat.Id,
-                   text: $"Доступ машине под номером {message.Text} успешно отозван"
+                   chatId: userId,
+                   text: $"Доступ машине под номером {a.Item2} успешно отозван"
                    );
-                await SendIdleMenu(botClient, message, context);
+                await SendIdleMenu(botClient, userId);
                 return;
             }
-            user.UserState = uState.Idle;
-            await context.SaveChangesAsync();
+            await userService.SetUserState(Tenant, uState.Idle);
         }
     }
 }

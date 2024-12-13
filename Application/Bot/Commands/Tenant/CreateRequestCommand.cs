@@ -2,12 +2,21 @@
 using Telegram.Bot;
 using Telegram.Bot.Types;
 using RentalHelper.Domain;
-namespace Application.Bot.Commands.Tenant;
+using Application.Services;
+using Telegram.Bot.Types.ReplyMarkups;
+using DocumentFormat.OpenXml.Bibliography;
+namespace Application.Bot.Commands.TenantCommands;
 
 public class CreateRequestCommand : BotCommandBase
 {
-    public CreateRequestCommand()
+    private readonly RequestService requestService;
+    private readonly RoomService roomService;
+
+    private Dictionary<long, Request> requests = new Dictionary<long, Request>();
+    public CreateRequestCommand(AppDbContext context, UserService userService, RequestService requestService, RoomService roomService) : base(userService)
     {
+        this.requestService = requestService;
+        this.roomService = roomService;
     }
 
     public override bool CanHandle(string command, uState s, Role role)
@@ -15,46 +24,85 @@ public class CreateRequestCommand : BotCommandBase
         return role == Role.Арендатор && (command == "create_request" || s == uState.TenantCreatingRequest);
     }
 
-    public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+    public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
     {
         if (message == null) message = query.Message;
+        var userId = message.Chat.Id;
+        var tenant = await userService.GetTenantByIdAsync(userId);
 
-        var chatId = message.Chat.Id;
-
-        // Проверяем, выбрал ли пользователь роль
-        if (!context.Tenants.Any(x => x.TelegramId == message.Chat.Id))
+        if (tenant.UserState == uState.Idle)
         {
-            await botClient.SendMessage(chatId, "Пожалуйста, сначала выберите вашу роль с помощью команды /start.");
-            return;
+            await userService.SetUserState(tenant, uState.TenantCreatingRequest);
+            await botClient.SendMessage(userId, "Введите описание вашей заявки:");
         }
-        var user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == chatId) ??
-                    throw new ArgumentException("Пользователь отсутствует в системе");
-        // Если пользователь отправляет текст после выбора роли
-        if (user.UserState == uState.TenantCreatingRequest)
+        else if (query == null)
         {
-            context.Requests.Add(new Request()
+            requests[userId] = new Request()
             {
                 Description = message.Text ?? throw new ArgumentException("Пустое сообщение"),
                 Status = Status.Новая,
-                CreatedById = chatId,
+                CreatedById = userId,
                 CreatedAt = DateTime.UtcNow,
-            });
-            user.UserState = uState.Idle;
-            await context.SaveChangesAsync();
+            };
             await botClient.SendMessage(
-                chatId: chatId,
-                text: $"Заявка отправлена: {message.Text}");
-            await SendIdleMenu(botClient, message, context);
-            foreach (var worker in context.Workers.Where(x => x.Role == Role.Сотрудник && x.Requests.Any(x => x.Status == Status.Выполняется)))
-            {
-                await botClient.SendMessage(worker.TelegramId, $"Появилась новая заявка: {message.Text}");
-            }
+                    chatId: userId,
+                    text: $"К какому помещению относится запрос",
+                    replyMarkup: new InlineKeyboardMarkup(tenant.Rooms.Select(
+                        x => new[] { InlineKeyboardButton.WithCallbackData(
+                            text: x.Name,
+                            callbackData: $"room:{x.Id}" )
+                        }.ToArray()))
+                    );
         }
-        else
+        else if (query.Data.StartsWith("room"))
         {
-            user.UserState = uState.TenantCreatingRequest;
-            await context.SaveChangesAsync();
-            await botClient.SendMessage(chatId, "Введите описание вашей заявки:");
+            var id = int.Parse(query.Data.Split(":")[1]);
+            requests[userId].RoomId = id;
+            await botClient.SendMessage(
+                    chatId: userId,
+                    text: $"Выберите приоритет задачи",
+                    replyMarkup: new InlineKeyboardMarkup(Enum.GetNames<Priority>().Select(
+                        x => new[] { InlineKeyboardButton.WithCallbackData(
+                            text: x,
+                            callbackData: x )
+                        }.ToArray()))
+                    );
+        } else
+        {
+            var priority = Enum.Parse<Priority>(query.Data);
+            requests[userId].Priority = priority;
+            await requestService.CreateRequest(requests[userId]);
+            
+
+            await userService.SetUserState(tenant, uState.Idle);
+
+            await botClient.SendMessage(
+                chatId: userId,
+                text: $"Заявка отправлена: {message.Text}\n\nПриоритет: {priority}");
+            await SendIdleMenu(botClient, userId);
+            var msg = $"Появилась новая заявка: {message.Text}\n\nПриоритет: {priority.ToString()} \n\n" +
+                        $"Клиент: {tenant.Name}\n\nПомещение: {requests[userId].Room.Name}";
+            if (priority == Priority.Низкий)
+                foreach (var worker in await userService.GetFreeWorkersAsync())
+                {
+                    await botClient.SendMessage(worker.TelegramId, msg);
+                }
+            else
+            {
+                foreach (var worker in await userService.GetWorkersAsync())
+                {
+                    await botClient.SendMessage(worker.TelegramId, msg);
+                }
+
+                if (priority == Priority.Высокий)
+                {
+                    foreach (var admin in await userService.GetAdminsAsync())
+                    {
+                        await botClient.SendMessage(admin.TelegramId, msg);
+                    }
+                }
+            }
+            requests.Remove(userId);
         }
     }
 }

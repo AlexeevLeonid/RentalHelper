@@ -8,11 +8,10 @@ using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
-using RentalHelper.Domain;
 using Application.Bot.Commands.Infrastructure;
-using Application.Bot.Commands.Tenant;
-using Application.Bot.Commands.Worker;
-using Application.Bot.Commands.Admin;
+using Application.Bot.Commands.TenantCommands;
+using Application.Bot.Commands.WorkerCommands;
+using Application.Bot.Commands.AdminCommands;
 namespace Application.Bot;
 
 public class HelpDescBot
@@ -20,24 +19,11 @@ public class HelpDescBot
     private readonly ITelegramBotClient _botClient;
     private readonly CommandDispatcher _dispatcher;
 
-    public HelpDescBot(ITelegramBotClient botClient, IServiceProvider provider)
+    public HelpDescBot(ITelegramBotClient botClient, CommandDispatcher commandDispatcher )
     {
         _botClient = botClient;
 
-        // Регистрируем команды
-        var commands = new List<BotCommandBase>
-        {
-            new RoleSelectionCommand(),
-            new CreateRequestCommand(),
-            new VehicleAccessCommand(),
-            new RevokeVehicleAccessCommand(),
-            new BookMeetingRoomCommand(),
-            new TakeRequestInWorkCommand(),
-            new DoneRequestCommand(),
-            new GetInfoListCommand()
-        };
-
-        _dispatcher = new CommandDispatcher(commands, provider);
+        _dispatcher = commandDispatcher;
     }
 
     public void Start()

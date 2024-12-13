@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Application.Services;
+using Microsoft.EntityFrameworkCore;
 using RentalHelper.Domain;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -8,93 +9,59 @@ namespace Application.Bot.Commands;
 
 public class RoleSelectionCommand : BotCommandBase
 {
-
-    public RoleSelectionCommand()
+    public RoleSelectionCommand(UserService userService) : base(userService)
     {
     }
 
     public override bool CanHandle(string message, uState s, Role r)
     {
-        return message == "/start" || message == "Арендатор" || message == "Сотрудник" || message == "Админ";
+        return message == "/start" || r == Role.НовыйПользователь;
     }
 
-    public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+    public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
     {
-        if (message == null) message = query.Message;
-        if (!context.Tenants.Any(x => x.TelegramId == message.Chat.Id) || 
-            !context.Workers.Any(x => x.TelegramId == message.Chat.Id) || 
-            !context.Admins.Any(x => x.TelegramId == message.Chat.Id))
+        var userId = message.Chat.Id;
+        RentalHelper.Domain.User user = null;
+        try
         {
-            var text = message.Text;
-            if (text == "/start")
+            user = await userService.GetUserByIdAsync(userId);
+        }
+        catch (ArgumentException ex)
+        {
+            user = new NewUser()
             {
-                // Отправляем кнопки выбора роли
-                var roles = Enum.GetNames<Role>().Select(x => new KeyboardButton(x));
-                var keyboard = new ReplyKeyboardMarkup(roles);
-                keyboard.OneTimeKeyboard = true;
-                keyboard.ResizeKeyboard = true;
-
-
-                await botClient.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: "Выберите вашу роль:",
-                    replyMarkup: keyboard
-                );
-            }
-            else
+                Name = message.Chat.Username,
+                TelegramId = userId,
+                Role = Role.НовыйПользователь,
+                UserState = uState.NewUser
+            };
+            await userService.AddNewUserAsync(user as NewUser);
+            await botClient.SendMessage(
+                chatId: userId,
+                text: $"Регистрация успешна, администратор в скором времени выставит вам роль"
+            );
+            foreach (var admin in await userService.GetAdminsAsync())
             {
-                var role = (Role)Enum.Parse(typeof(Role), text, true);
-                if (role == Role.Арендатор)
-                {
-                    context.Tenants.Add(new RentalHelper.Domain.Tenant
-                    {
-                        TelegramId = message.Chat.Id,
-                        Name = message.Chat.Username ?? "",
-                        UserState = uState.Idle,
-                        Role = role,
-                    });
-                } else if (role == Role.Сотрудник)
-                {
-                    context.Workers.Add(new RentalHelper.Domain.Worker
-                    {
-                        TelegramId = message.Chat.Id,
-                        Name = message.Chat.Username ?? "",
-                        UserState = uState.Idle,
-                        Role = role,
-                    });
-                }
-                else if (role == Role.Админ)
-                {
-                    context.Admins.Add(new RentalHelper.Domain.Admin
-                    {
-                        TelegramId = message.Chat.Id,
-                        Name = message.Chat.Username ?? "",
-                        UserState = uState.Idle,
-                        Role = role,
-                    });
-                }
-
-                await context.SaveChangesAsync();
                 await botClient.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: $"Ваша роль: {role}"
-                );
-                await SendIdleMenu(botClient, message, context);
+                chatId: userId,
+                text: $"Зарегистрирован новый пользователь, необходимо определить его роль"
+            );
             }
+        }
+        if (user.Role == Role.НовыйПользователь)
+        {
+            await botClient.SendMessage(
+                chatId: userId,
+                text: $"Регистрация успешна, администратор в скором времени выставит вам роль"
+            );
         }
         else
         {
-            // Если роль уже выбрана, сообщаем об этом
-            var user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
-            if (user == null)
-                await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
-            if (user == null)
-                await context.Admins.FirstOrDefaultAsync(x => x.TelegramId == message.Chat.Id);
             await botClient.SendMessage(
                 chatId: message.Chat.Id,
                 text: $"Ваша роль: {user.Role}"
             );
-            await SendIdleMenu(botClient, message, context);
+            await SendIdleMenu(botClient, userId);
         }
     }
 

@@ -10,13 +10,19 @@ using Telegram.Bot.Types;
 using Telegram.Bot;
 using DocumentFormat.OpenXml.InkML;
 using System.Globalization;
+using Application.Services;
 
-namespace Application.Bot.Commands.Tenant
+namespace Application.Bot.Commands.TenantCommands
 {
     public class BookMeetingRoomCommand : BotCommandBase
     {
-        public BookMeetingRoomCommand()
+        private readonly UserService userService;
+        private readonly BookingService bookingService;
+        public BookMeetingRoomCommand(UserService userService, BookingService bookingService)
+            : base(userService)
         {
+            this.userService = userService;
+            this.bookingService = bookingService;
         }
 
         public override bool CanHandle(string command, uState s, Role role)
@@ -24,71 +30,51 @@ namespace Application.Bot.Commands.Tenant
             return role == Role.Арендатор && (command == "book_meeting_room" || s == uState.TenantBookingRoom);
         }
 
-        public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+        public override async Task ExecuteAsync(ITelegramBotClient botClient,  Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var user = await context.Tenants.FirstAsync(x => x.TelegramId == message.Chat.Id);
-            var chatId = message.Chat.Id;
-            if (user.UserState == uState.Idle)
+            var userId = message.Chat.Id;
+            var tenant = await userService.GetTenantByIdAsync(userId);
+            
+            if (tenant.UserState == uState.Idle)
             {
-                var bookedDates = await context.Bookings
-                    .Where(b => b.Date >= DateTime.Now.Date)
-                    .Select(b => b.Date)
-                    .ToListAsync();
-                var availableDays = new List<DateTime>();
-                var currentDate = DateTime.Now.Date;
-
-                while (availableDays.Count < 10)
-                {
-                    // Если текущая дата не забронирована, добавляем её в список
-                    if (!bookedDates.Contains(currentDate))
-                    {
-                        availableDays.Add(currentDate);
-                    }
-
-                    // Переход к следующему дню
-                    currentDate = currentDate.AddDays(1);
-                }
-
-                var buttons = availableDays
-                    .Where(day => day.DayOfWeek != DayOfWeek.Wednesday) // Убираем среду
+                var buttons = (await bookingService.GetAviableDates())
                     .Select(day =>
                         new[]{InlineKeyboardButton.WithCallbackData(
-                            text: $"{day:dddd, dd.MM}", // Текст на кнопке (например, "Понедельник, 11.12")
-                            callbackData: day.ToString("yyyy-MM-dd") // Уникальный идентификатор
+                            text: $"{day:dddd, dd.MM}",
+                            callbackData: day.ToString("yyyy-MM-dd")
                         )}).ToArray();
+
                 await botClient.SendMessage(
                     chatId: message.Chat.Id,
                     text: $"Доступные даты на следующую неделю",
                     replyMarkup: new InlineKeyboardMarkup(buttons)
                     );
-                user.UserState = uState.TenantBookingRoom;
-                await context.SaveChangesAsync();
+
+                await userService.SetUserState(tenant, uState.TenantBookingRoom);
                 return;
             }
-            if (user.UserState == uState.TenantBookingRoom)
+            if (tenant.UserState == uState.TenantBookingRoom)
             {
+
                 var date = DateTime.ParseExact(
                     query.Data,
                     "yyyy-MM-dd",
                     CultureInfo.InvariantCulture
                 );
-                await context.Bookings.AddAsync(new Booking()
-                {
-                    Date = date,
-                    UserId = chatId,
-                });
-                user.UserState = uState.Idle;
-                await context.SaveChangesAsync();
+
+                await bookingService.BookDateAsync(date, userId);
+                await userService.SetUserState(tenant, uState.Idle);
+
                 await botClient.SendMessage(
-                   chatId: message.Chat.Id,
+                   chatId: userId,
                    text: $"Переговорка успешно забронирована на {query.Data}"
                    );
-                await SendIdleMenu(botClient, message, context);
+
+                await SendIdleMenu(botClient, userId);
                 return;
             }
-            user.UserState = uState.Idle;
-            await context.SaveChangesAsync();
+            await userService.SetUserState(tenant, uState.Idle);
         }
     }
 }

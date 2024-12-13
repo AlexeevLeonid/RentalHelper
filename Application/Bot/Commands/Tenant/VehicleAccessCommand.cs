@@ -8,15 +8,19 @@ using Telegram.Bot.Types.ReplyMarkups;
 using Telegram.Bot.Types;
 using Telegram.Bot;
 using Microsoft.EntityFrameworkCore;
+using Application.Services;
 
-namespace Application.Bot.Commands.Tenant
+namespace Application.Bot.Commands.TenantCommands
 {
 
     public class VehicleAccessCommand : BotCommandBase
     {
         public static Dictionary<long, Vehicle> newVehicles = new();
-        public VehicleAccessCommand()
+        private readonly VehicleService vehicleService;
+
+        public VehicleAccessCommand(UserService userService, VehicleService vehicleService) : base(userService)
         {
+            this.vehicleService = vehicleService;
         }
 
         public override bool CanHandle(string message, uState s, Role role)
@@ -24,41 +28,42 @@ namespace Application.Bot.Commands.Tenant
             return role == Role.Арендатор && (message == "add_vehicle" || s == uState.TenantGivingAccess);
         }
 
-        public override async Task ExecuteAsync(ITelegramBotClient botClient, AppDbContext context, Message message = null, CallbackQuery query = null)
+        public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
         {
             if (message == null) message = query.Message ?? throw new Exception("нет пользователя");
-            var user = await context.Tenants.FirstAsync(x => x.TelegramId == message.Chat.Id);
-            var chatId = message.Chat.Id;
+            var userId = message.Chat.Id;
+            var user = await userService.GetTenantByIdAsync(userId);
+            
             if (user.UserState == uState.Idle)
             {
-                user.UserState = uState.TenantGivingAccess;
-                await context.SaveChangesAsync();
-                await botClient.SendMessage(chatId, "Введите номер машины");
-                newVehicles[chatId] = new Vehicle();
-                newVehicles[chatId].UserId = user.TelegramId;
+                userService.SetUserState(user, uState.TenantGivingAccess);
+
+                await botClient.SendMessage(userId, "Введите номер машины");
+                newVehicles[userId] = new Vehicle();
+                newVehicles[userId].UserId = user.TelegramId;
                 return;
             }
             if (user.UserState == uState.TenantGivingAccess)
             {
                 if (query == null)
                 {
-                    newVehicles[chatId].PlateNumber = message.Text;
+                    newVehicles[userId].PlateNumber = message.Text;
                     await botClient.SendMessage(
-                    chatId: message.Chat.Id,
+                    chatId: userId,
                     text: $"Доступ разовый?",
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
-                                new[] { InlineKeyboardButton.WithCallbackData("Да", "vehicle_access_one_time") },
-                                new[] { InlineKeyboardButton.WithCallbackData("Нет", "vehicle_access_many_times") }
+                                new[] { InlineKeyboardButton.WithCallbackData("Да", "vehicle_access_times_one_time") },
+                                new[] { InlineKeyboardButton.WithCallbackData("Нет", "vehicle_access_times_many_times") }
                             })
                     );
                     return;
                 }
-                if (query.Data == "vehicle_access_one_time" || query.Data == "vehicle_access_many_times")
+                if (query.Data.StartsWith("vehicle_access_times"))
                 {
-                    newVehicles[chatId].IsOneTime = query.Data == "vehicle_access_one_time";
+                    newVehicles[userId].IsOneTime = query.Data == "vehicle_access_times_one_time";
                     await botClient.SendMessage(
-                    chatId: message.Chat.Id,
+                    chatId: userId,
                     text: $"Доступ платный?",
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
@@ -68,19 +73,19 @@ namespace Application.Bot.Commands.Tenant
                     );
                     return;
                 }
-                if (query.Data == "vehicle_access_is_paid" || query.Data == "vehicle_access_is_not_paid")
+                if (query.Data.StartsWith("vehicle_access_is"))
                 {
-                    newVehicles[chatId].IsPaid = query.Data == "vehicle_access_is_paid";
+                    newVehicles[userId].IsPaid = query.Data == "vehicle_access_is_paid";
                     user.UserState = uState.Idle;
-                    await context.Vehicles.AddAsync(newVehicles[chatId]);
-                    await context.SaveChangesAsync();
+                    await vehicleService.AddVehicleAccessAsync(newVehicles[userId]);
 
                     await botClient.SendMessage(
-                    chatId: message.Chat.Id,
-                    text: $"Заявка успешно создана, номер {newVehicles[chatId].PlateNumber}"
+                    chatId: userId,
+                    text: $"Заявка успешно создана, номер {newVehicles[userId].PlateNumber}"
                     );
-                    newVehicles.Remove(chatId);
-                    await SendIdleMenu(botClient, message, context);
+                    newVehicles.Remove(userId);
+
+                    await SendIdleMenu(botClient, userId);
                 }
             }
         }

@@ -5,6 +5,15 @@ using System.Data;
 
 namespace RentalHelper.Domain
 {
+    public class Room
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public Tenant? Tenant { get; set; }
+        public long? TenantId { get; set; }
+        public ICollection<Request> Requests { get; set; } = new List<Request>();
+        public decimal Price { get; set; }
+    }
     public class User
     {
         public long TelegramId { get; set; } = 0;
@@ -18,12 +27,15 @@ namespace RentalHelper.Domain
 
     public class Tenant : User
     {
+        public ICollection<Room> Rooms { get; set; } = new List<Room>();
         public ICollection<Vehicle> Vehicles { get; set; } = new List<Vehicle>();
         public ICollection<Booking> Bookings { get; set; } = new List<Booking>();
     }
     public class Worker : User
     { }
     public class Admin : User
+    { }
+    public class NewUser : User
     { }
     public enum uState
     {
@@ -38,6 +50,8 @@ namespace RentalHelper.Domain
         WorkerDoneRequest,
         AdminRequestInfo,
         AdminSetPrice,
+        AdminAssignRole,
+        AdminAssignRoom
     }
     public enum Role
     {
@@ -58,6 +72,18 @@ namespace RentalHelper.Domain
         public long? AssignedToId { get; set; }
         public Worker? AssignedTo { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        public Room Room { get; set; }
+
+        public int RoomId {  get; set; }
+        public Priority Priority { get; set; }
+    }
+
+    public enum Priority
+    {
+        Низкий,
+        Высокий,
+        Средний,
     }
 
     public enum Status
