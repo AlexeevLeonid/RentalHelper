@@ -20,7 +20,7 @@ namespace Application.Bot.Commands.AdminCommands
         }
         public override bool CanHandle(string message, uState s, Role role)
         {
-            return role == Role.Админ && (message == "assign_room" || s == uState.AdminAssignRoom);
+            return role == Role.Менеджер && (message == "assign_room" || s == uState.AdminAssignRoom);
         }
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
@@ -37,8 +37,8 @@ namespace Application.Bot.Commands.AdminCommands
                         text: $"Пользователь: {tenant.Name}",
                         replyMarkup: new InlineKeyboardMarkup(new[]
                         {
-                            new[] { InlineKeyboardButton.WithCallbackData("Назначить комнату", $"assign_room:{tenant.TelegramId}") },
-                            new[] { InlineKeyboardButton.WithCallbackData("Отозвать комнату", $"revoke_room:{tenant.TelegramId}") }
+                            new[] { InlineKeyboardButton.WithCallbackData("Назначить помещение", $"assign_room:{tenant.TelegramId}") },
+                            new[] { InlineKeyboardButton.WithCallbackData("Отозвать помещение", $"revoke_room:{tenant.TelegramId}") }
                         }));
                 await userService.SetUserState(admin, uState.AdminAssignRoom);
             }
@@ -94,7 +94,7 @@ namespace Application.Bot.Commands.AdminCommands
                     await botClient.SendMessage(
                         chatId: chatId,
                         text: $"Пользователь {tenant.Name} успешно откреплён от помещения {room.Name}");
-                    await userService.SetUserState(tenant, uState.Idle);
+                    await userService.SetUserState(admin, uState.Idle);
                     await SendIdleMenu(botClient, chatId);
 
                     await botClient.SendMessage(

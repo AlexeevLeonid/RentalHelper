@@ -23,7 +23,7 @@ namespace Application.Bot.Commands.AdminCommands
 
         public override bool CanHandle(string command, uState state, Role role)
         {
-            return role == Role.Админ && (command == "assign_role" || state == uState.AdminAssignRole);
+            return role == Role.Менеджер && (command == "assign_role" || state == uState.AdminAssignRole);
         }
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)

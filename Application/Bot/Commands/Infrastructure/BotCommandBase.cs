@@ -43,8 +43,8 @@ public abstract class BotCommandBase
                     return new InlineKeyboardMarkup(new[]
                 {
                     new[] { InlineKeyboardButton.WithCallbackData("Отправить заявку", "create_request") },
-                    new[] { InlineKeyboardButton.WithCallbackData("Выдать пропуск транспорту", "add_vehicle") },
-                    new[] { InlineKeyboardButton.WithCallbackData("Отозвать пропуск транспорту", "delete_vehicle") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Выдать доступ транспорту", "add_vehicle") },
+                    new[] { InlineKeyboardButton.WithCallbackData("Отозвать доступ", "delete_vehicle") },
                     new[] { InlineKeyboardButton.WithCallbackData("Забронировать переговорку", "book_meeting_room") }
                 });
 
@@ -52,10 +52,11 @@ public abstract class BotCommandBase
                     return new InlineKeyboardMarkup(new[]
                             {
                                 new[] { InlineKeyboardButton.WithCallbackData("Взять заявку в работу", "take_request") },
-                                new[] { InlineKeyboardButton.WithCallbackData("Закрыть взятые заявки", "done_request") },
+                                new[] { InlineKeyboardButton.WithCallbackData("Закрыть взятую заявку", "done_request") },
+                                new[] { InlineKeyboardButton.WithCallbackData("Свободные запросы", "show_request") },
                             });
 
-                case Role.Админ:
+                case Role.Менеджер:
                     return new InlineKeyboardMarkup(new[]
                 {
                     new[] { InlineKeyboardButton.WithCallbackData("Сводка по текущему состоянию", "admin_info") },

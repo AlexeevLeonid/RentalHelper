@@ -31,15 +31,13 @@ namespace Application.Bot.Commands.WorkerCommands
             var userId = message.Chat.Id;
             var user = await userService.GetWorkerByIdAsync(userId);
 
-
-
             if (user.UserState == uState.Idle)
             {
                 foreach (var v in await requestService.GetRequestsAsync())
                 {
                     await botClient.SendMessage(
                     chatId: userId,
-                    text: $"Заявка: {v.Description} \n\n Клиента: {v.CreatedBy.Name} \n\nБыла создана: {v.CreatedAt.ToString()} ",
+                    text: $"Заявка: {v.Description} \n\nКлиента: {v.CreatedBy.Name}\n\nСтатус: {v.Status.ToString()} \n\nПомещение: {v.Room.Name}\n\nБыла создана: {v.CreatedAt.ToString()} ",
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
                                 new[] { InlineKeyboardButton.WithCallbackData("Взять в работу", $"take_in_work:{v.Id}") },
@@ -48,7 +46,7 @@ namespace Application.Bot.Commands.WorkerCommands
                 }
                 await botClient.SendMessage(
                     chatId: userId,
-                    text: $"=====================================",
+                    text: $"",
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
                                 new[] { InlineKeyboardButton.WithCallbackData("отмена", $"cancel") },
@@ -66,7 +64,8 @@ namespace Application.Bot.Commands.WorkerCommands
                     return;
                 }
                 var requestId = int.Parse(query.Data.Split(":")[1]);
-                var r = await requestService.DoneRequestByIdAsync(requestId);
+                var r = await requestService.TakeRequestByIdAsync(requestId, userId);
+                user.Requests.Add(r);
                 await userService.SetUserState(user, uState.Idle);
 
                 await botClient.SendMessage(

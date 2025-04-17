@@ -44,6 +44,11 @@ public class AppDbContext : DbContext
             .WithOne(r => r.Tenant)
             .HasForeignKey(r => r.TenantId);
 
+        modelBuilder.Entity<Worker>()
+            .HasMany<Request>(u => u.Requests)
+            .WithOne(r => r.AssignedTo)
+            .HasForeignKey(r => r.AssignedToId);
+
         modelBuilder.Entity<Vehicle>()
             .HasOne(u => u.User)
             .WithMany(r => r.Vehicles)
@@ -74,6 +79,7 @@ public class AppDbContext : DbContext
                 new Worker { Name = "@centerhades", TelegramId = id, Role = Role.Сотрудник, UserState = uState.Idle }
             );
         }
+
         if (!context.Tenants.Any())
         {
             context.Tenants.AddRange(
@@ -83,15 +89,29 @@ public class AppDbContext : DbContext
         if (!context.Admins.Any())
         {
             context.Admins.AddRange(
-                new Admin { Name = "@centerhades", TelegramId = id, Role = Role.Админ, UserState = uState.Idle }
+                new Admin { Name = "@centerhades", TelegramId = id, Role = Role.Менеджер, UserState = uState.Idle }
+            );
+        }
+        if (!context.NewUsers.Any())
+        {
+            context.NewUsers.AddRange(
+                new NewUser { Name = "@centerhades", TelegramId = id, Role = Role.НовыйПользователь, UserState = uState.NewUser }
+            );
+        }
+        if (!context.Rooms.Any())
+        {
+            context.Rooms.AddRange(
+                new Room { Id = 1, Name = "Офис 202", Price = 20000, TenantId = id },
+                new Room { Id = 2, Name = "Офис 203", Price = 20000, TenantId = id },
+                new Room { Id = 3, Name = "Офис 204", Price = 20000, TenantId = id }
             );
         }
         // Проверяем, есть ли данные в базе, чтобы не засевать их заново
         if (!context.Vehicles.Any())
         {
             context.Vehicles.AddRange(
-                new Vehicle { PlateNumber = "ABC123", IsPaid = true, IsOneTime = false, UserId = id },
-                new Vehicle { PlateNumber = "XYZ456", IsPaid = false, IsOneTime = true, UserId = id }
+                new Vehicle { PlateNumber = "а055аа", IsPaid = true, IsOneTime = false, UserId = id },
+                new Vehicle { PlateNumber = "б632ад", IsPaid = false, IsOneTime = true, UserId = id }
             );
         }
 
@@ -106,8 +126,11 @@ public class AppDbContext : DbContext
         if (!context.Requests.Any())
         {
             context.Requests.AddRange(
-                new Request { Description = "Петрович врубай насос", CreatedById = id, Status = Status.Новая },
-                new Request { Description = "резать чуррос", CreatedById = id, AssignedToId = id, Status = Status.Выполняется }
+                new Request { Description = "Искрит проводка", CreatedById = id, Priority = Priority.Высокий, Status = Status.Новая, RoomId = 1},
+                new Request { Description = "Искрит проводка", CreatedById = id, Priority = Priority.Высокий, Status = Status.Новая, RoomId = 1 },
+                new Request { Description = "Искрит проводка", CreatedById = id, Priority = Priority.Высокий, Status = Status.Новая, RoomId = 1 },
+                new Request { Description = "Искрит проводка", CreatedById = id, Priority = Priority.Высокий, Status = Status.Новая, RoomId = 1 },
+                new Request { Description = "Требуется монтаж монитора", CreatedById = id, AssignedToId = id, Status = Status.Выполняется, Priority = Priority.Низкий, RoomId = 2}
             );
         }
 

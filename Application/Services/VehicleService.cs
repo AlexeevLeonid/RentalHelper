@@ -49,7 +49,6 @@ namespace Application.Services
 
         public async Task<(string, long)> SetVehiclePrice(long userId, int price)
         {
-            vehicles.Remove(userId);
             var vehicle = await GetVehicleByIdAsync(vehicles[userId]);
             vehicle.Price = price;
             return (vehicle.PlateNumber, vehicle.UserId);

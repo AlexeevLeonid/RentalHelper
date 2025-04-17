@@ -28,7 +28,7 @@ namespace Application.Bot.Commands.AdminCommands
 
         public override bool CanHandle(string message, uState s, Role role)
         {
-            return role == Role.Админ && (message == "admin_info" || s == uState.AdminRequestInfo || s == uState.AdminSetPrice);
+            return role == Role.Менеджер && (message == "admin_info" || s == uState.AdminRequestInfo || s == uState.AdminSetPrice);
         }
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient,Message message = null, CallbackQuery query = null)
@@ -42,7 +42,7 @@ namespace Application.Bot.Commands.AdminCommands
                 await TenantRequests(botClient, message, tenants);
                 var workers = await userService.GetWorkersAsync();
                 await WorkerRequests(botClient, message, workers);
-                await userService.SetUserState(admin, uState.Idle);
+                await userService.SetUserState(admin, uState.AdminRequestInfo);
             }
             else if (query != null && query.Data != null)
             {
@@ -54,7 +54,8 @@ namespace Application.Bot.Commands.AdminCommands
                     await SetPriceHandle(botClient, message, query, admin);
                 if (query.Data.StartsWith("revoke_access"))
                     await RevokeAccessHandle(botClient,  message, query, admin);
-                await SendIdleMenu(botClient, userId);
+                if (!query.Data.StartsWith("set_price"))
+                    await SendIdleMenu(botClient, userId);
 
             }
             else if (message != null)
@@ -205,7 +206,6 @@ namespace Application.Bot.Commands.AdminCommands
                         text: $"Для машины {pn} установлена цена: {message.Text}");
 
                 await SendIdleMenu(botClient, message.Chat.Id);
-
             }
         }
     }

@@ -58,7 +58,7 @@ namespace RentalHelper.Domain
         НовыйПользователь,
         Арендатор,
         Сотрудник,
-        Админ
+        Менеджер
     }
 
     public class Request
@@ -72,18 +72,16 @@ namespace RentalHelper.Domain
         public long? AssignedToId { get; set; }
         public Worker? AssignedTo { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
         public Room Room { get; set; }
-
         public int RoomId {  get; set; }
         public Priority Priority { get; set; }
     }
 
     public enum Priority
     {
-        Низкий,
         Высокий,
         Средний,
+        Низкий,
     }
 
     public enum Status

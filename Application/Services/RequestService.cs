@@ -40,9 +40,23 @@ namespace Application.Services
             return request;
         }
 
+        public async Task<Request> TakeRequestByIdAsync(int id, long userId)
+        {
+            var request = await GetRequestByIdAsync(id);
+            request.Status = Status.Выполняется;
+            request.AssignedToId = userId;
+            await context.SaveChangesAsync();
+            return request;
+        }
+
         public async Task<List<Request>> GetRequestsAsync()
         {
-            return await context.Requests.Where(x => x.Status == Status.Новая).OrderByDescending(x => x.CreatedAt).Include(x => x.CreatedBy).ToListAsync();
+            return await context.Requests.
+                Where(x => x.Status == Status.Новая).
+                OrderByDescending(x => x.CreatedAt).
+                Include(x => x.CreatedBy).
+                Include(x => x.Room).
+                ToListAsync();
         }
     }
 }

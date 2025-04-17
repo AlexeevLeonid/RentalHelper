@@ -8,6 +8,7 @@ using Application.Bot.Commands.AdminCommands;
 using Application.Bot.Commands.WorkerCommands;
 using Application.Bot.Commands.Infrastructure;
 using Application.Services;
+using Application.Bot.Commands.Worker;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,7 @@ builder.Services.AddScoped<BotCommandBase, TakeRequestInWorkCommand>();
 builder.Services.AddScoped<BotCommandBase, AssignNewUserRoleCommand>(); 
 builder.Services.AddScoped<BotCommandBase, ManageRoomCommand>();
 builder.Services.AddScoped<BotCommandBase, GetVehicleExcelCommand>();
+builder.Services.AddScoped<BotCommandBase, ShowRequestsCommand>();
 builder.Services.AddScoped<CommandDispatcher>();
 
 builder.Services.AddScoped<BookingService>();

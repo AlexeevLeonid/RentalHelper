@@ -25,7 +25,7 @@ namespace Application.Bot.Commands.AdminCommands
 
         public override bool CanHandle(string command, uState state, Role role)
         {
-            return role == Role.Админ && (command == "vehicle_excel");
+            return role == Role.Менеджер && (command == "vehicle_excel");
         }
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
@@ -40,7 +40,7 @@ namespace Application.Bot.Commands.AdminCommands
             await using var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
             await botClient.SendDocument(
                 chatId: chatId,
-                document: InputFile.FromStream(stream, "example.xlsx"),
+                document: InputFile.FromStream(stream, "example.xlsx")
             );
         }
 

@@ -78,9 +78,9 @@ public class CreateRequestCommand : BotCommandBase
 
             await botClient.SendMessage(
                 chatId: userId,
-                text: $"Заявка отправлена: {message.Text}\n\nПриоритет: {priority}");
+                text: $"Заявка отправлена: {requests[userId].Description}\n\nПриоритет: {priority}");
             await SendIdleMenu(botClient, userId);
-            var msg = $"Появилась новая заявка: {message.Text}\n\nПриоритет: {priority.ToString()} \n\n" +
+            var msg = $"Появилась новая заявка: {requests[userId].Description}\n\nПриоритет: {priority.ToString()} \n\n" +
                         $"Клиент: {tenant.Name}\n\nПомещение: {requests[userId].Room.Name}";
             if (priority == Priority.Низкий)
                 foreach (var worker in await userService.GetFreeWorkersAsync())

@@ -26,7 +26,7 @@ namespace Application.Bot.Commands.WorkerCommands
         public override bool CanHandle(string command, uState s, Role role)
         {
             return role == Role.Сотрудник && (command == "done_request" || s == uState.WorkerDoneRequest);
-        } // Перехватывает любое сообщение для контекста
+        }
 
         public override async Task ExecuteAsync(ITelegramBotClient botClient, Message message = null, CallbackQuery query = null)
         {
@@ -36,25 +36,29 @@ namespace Application.Bot.Commands.WorkerCommands
 
             if (worker.UserState == uState.Idle)
             {
+                if (worker.Requests.Count == 0)
+                {
+                    return;
+                }
                 foreach (var v in worker.Requests.Where(x => x.Status == Status.Выполняется).OrderByDescending(x => x.CreatedAt))
                 {
                     await botClient.SendMessage(
                     chatId: userId,
-                    text: $"Заявка: {v.Description} \n\n Клиента: {v.CreatedBy.Name}",
+                    text: $"Заявка: {v.Description} \n\nКлиента: {v.CreatedBy.Name}\n\nСтатус: {v.Status.ToString()} \n\nПомещение: {v.Room.Name}",
                     replyMarkup: new InlineKeyboardMarkup(new[]
                             {
                                 new[] { InlineKeyboardButton.WithCallbackData("Завершено", $"work_done:{v.Id}") },
                             })
                     );
                 }
-                await botClient.SendMessage(
-                    chatId: userId,
-                    text: $"=====================================",
-                    replyMarkup: new InlineKeyboardMarkup(new[]
-                            {
-                                new[] { InlineKeyboardButton.WithCallbackData("отмена", $"cancel") },
-                    })
-                    );
+                //await botClient.SendMessage(
+                //    chatId: userId,
+                //    text: $"=====================================",
+                //    replyMarkup: new InlineKeyboardMarkup(new[]
+                //            {
+                //                new[] { InlineKeyboardButton.WithCallbackData("отмена", $"cancel") },
+                //    })
+                //    );
                 await userService.SetUserState(worker, uState.WorkerDoneRequest);
                 return;
             }

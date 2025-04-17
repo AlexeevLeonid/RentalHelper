@@ -22,12 +22,14 @@ namespace Application.Services
         public async Task<User> GetUserByIdAsync(long id)
         {
             User user = null;
+            
             if (user == null)
                 user = await context.Admins.FirstOrDefaultAsync(x => x.TelegramId == id);
             if (user == null)
-                user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == id);
+                user = await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == id);
             if (user == null)
-                await context.Workers.FirstOrDefaultAsync(x => x.TelegramId == id);
+                user = await context.Tenants.FirstOrDefaultAsync(x => x.TelegramId == id);
+            
             if (user == null)
                 await context.NewUsers.FirstOrDefaultAsync(x => x.TelegramId == id);
 
