@@ -31,9 +31,11 @@ namespace Application.Bot.Commands.Worker
 
             foreach (var v in requests) 
             {
+                var classification = v.Description.Contains("труба") ? "сантехника" : v.Description.Contains("проводка") ? "электрика" : "другое";
                 await botClient.SendMessage(
                     chatId: message.Chat.Id,
-                    text: $"Заявка: {v.Description} \n\nКлиента: {v.CreatedBy.Name}\n\nСтатус: {v.Status.ToString()} \n\nПомещение: {v.Room.Name}"
+                    text: $"Заявка: {v.Description} \n\nКлиента: {v.CreatedBy.Name}\n\nСтатус: {v.Status.ToString()} \n\nПомещение: {v.Room.Name}\n\n" +
+                    $"Заявка классифицирована как: {classification}"
                     );
             }
         }

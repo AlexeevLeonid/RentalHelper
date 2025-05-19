@@ -54,54 +54,57 @@ public class CreateRequestCommand : BotCommandBase
                         }.ToArray()))
                     );
         }
-        else if (query.Data.StartsWith("room"))
+        //else if (query.Data.StartsWith("room"))
+        //{
+        //    var id = int.Parse(query.Data.Split(":")[1]);
+        //    requests[userId].RoomId = id;
+        //    await botClient.SendMessage(
+        //            chatId: userId,
+        //            text: $"Выберите приоритет задачи",
+        //            replyMarkup: new InlineKeyboardMarkup(Enum.GetNames<Priority>().Select(
+        //                x => new[] { InlineKeyboardButton.WithCallbackData(
+        //                    text: x,
+        //                    callbackData: x )
+        //                }.ToArray()))
+        //            );
+        //}
+        else
         {
             var id = int.Parse(query.Data.Split(":")[1]);
             requests[userId].RoomId = id;
-            await botClient.SendMessage(
-                    chatId: userId,
-                    text: $"Выберите приоритет задачи",
-                    replyMarkup: new InlineKeyboardMarkup(Enum.GetNames<Priority>().Select(
-                        x => new[] { InlineKeyboardButton.WithCallbackData(
-                            text: x,
-                            callbackData: x )
-                        }.ToArray()))
-                    );
-        } else
-        {
-            var priority = Enum.Parse<Priority>(query.Data);
+            var priority = requests[userId].Description.Contains("труба") ? Priority.Средний : requests[userId].Description.Contains("проводка") ? Priority.Высокий : Priority.Низкий;//Enum.Parse<Priority>(query.Data);
             requests[userId].Priority = priority;
             await requestService.CreateRequest(requests[userId]);
             
 
             await userService.SetUserState(tenant, uState.Idle);
-
+            var classification = requests[userId].Description.Contains("труба") ? "сантехника" : requests[userId].Description.Contains("проводка") ? "электрика" : "другое";
             await botClient.SendMessage(
                 chatId: userId,
-                text: $"Заявка отправлена: {requests[userId].Description}\n\nПриоритет: {priority}");
+                text: $"Заявка отправлена: {requests[userId].Description}\n\nПриоритет: {priority}\n\nЗаявка классифицирована как: {classification}");
             await SendIdleMenu(botClient, userId);
-            var msg = $"Появилась новая заявка: {requests[userId].Description}\n\nПриоритет: {priority.ToString()} \n\n" +
-                        $"Клиент: {tenant.Name}\n\nПомещение: {requests[userId].Room.Name}";
-            if (priority == Priority.Низкий)
-                foreach (var worker in await userService.GetFreeWorkersAsync())
-                {
-                    await botClient.SendMessage(worker.TelegramId, msg);
-                }
-            else
-            {
-                foreach (var worker in await userService.GetWorkersAsync())
-                {
-                    await botClient.SendMessage(worker.TelegramId, msg);
-                }
+            //var msg = $"Появилась новая заявка: {requests[userId].Description}\n\nПриоритет: {priority.ToString()} \n\n" +
+            //            $"Клиент: {tenant.Name}\n\nПомещение: {requests[userId].Room.Name}";
+            //if (priority == Priority.Низкий)
+            //    foreach (var worker in await userService.GetFreeWorkersAsync())
+            //    {
+            //        await botClient.SendMessage(worker.TelegramId, msg);
+            //    }
+            //else
+            //{
+            //    foreach (var worker in await userService.GetWorkersAsync())
+            //    {
+            //        await botClient.SendMessage(worker.TelegramId, msg);
+            //    }
 
-                if (priority == Priority.Высокий)
-                {
-                    foreach (var admin in await userService.GetAdminsAsync())
-                    {
-                        await botClient.SendMessage(admin.TelegramId, msg);
-                    }
-                }
-            }
+            //    if (priority == Priority.Высокий)
+            //    {
+            //        foreach (var admin in await userService.GetAdminsAsync())
+            //        {
+            //            await botClient.SendMessage(admin.TelegramId, msg);
+            //        }
+            //    }
+            //}
             requests.Remove(userId);
         }
     }

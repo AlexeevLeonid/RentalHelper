@@ -31,32 +31,32 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Tenant>()
             .HasMany<Request>(u => u.Requests)
-            .WithOne(r => r.CreatedBy)
+            .WithOne(r => r.CreatedBy).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.CreatedById);
 
         modelBuilder.Entity<Tenant>()
             .HasMany(u => u.Vehicles)
-            .WithOne(r => r.User)
+            .WithOne(r => r.User).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.UserId);
 
         modelBuilder.Entity<Tenant>()
             .HasMany(u => u.Rooms)
-            .WithOne(r => r.Tenant)
+            .WithOne(r => r.Tenant).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.TenantId);
 
         modelBuilder.Entity<Worker>()
             .HasMany<Request>(u => u.Requests)
-            .WithOne(r => r.AssignedTo)
+            .WithOne(r => r.AssignedTo).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.AssignedToId);
 
         modelBuilder.Entity<Vehicle>()
             .HasOne(u => u.User)
-            .WithMany(r => r.Vehicles)
+            .WithMany(r => r.Vehicles).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.UserId);
 
         modelBuilder.Entity<Request>()
             .HasOne(r => r.AssignedTo)
-            .WithMany()
+            .WithMany(x => x.Requests).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.AssignedToId);
 
         modelBuilder.Entity<Room>().
@@ -66,7 +66,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Booking>()
             .HasOne(r => r.User)
-            .WithMany(u => u.Bookings)
+            .WithMany(u => u.Bookings).HasPrincipalKey(w => w.TelegramId)
             .HasForeignKey(r => r.UserId);
     }
 
